@@ -12,29 +12,31 @@ struct ContentView: View {
     @State private var localAmount: Double = 5000
     @State private var localPeriod: Int = 14
     
+    private let amountRange: ClosedRange<Double> = 5000...50000
+    private let amountStep: Double = 1000
+    private let periodOptions = [7, 14, 21, 28]
+    
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 30) {
                     // Amount Slider Section
-                    SliderSection(
+                    AmountSliderSection(
                         title: "How much?",
-                        value: $localAmount,
-                        range: 5000...50000,
-                        step: 1000,
-                        displayValue: "₦\(localAmount.formatAsCurrency())",
+                        amount: $localAmount,
+                        range: amountRange,
+                        step: amountStep,
                         color: .green,
-                        onChangeEnd: { amount in
-                            store.dispatch(.setAmount(amount))
-                        }
+                        onEnd: { store.dispatch(.setAmount(localAmount)) }
                     )
                     
                     // Period Slider Section
                     PeriodSliderSection(
+                        title: "How long?",
                         selectedPeriod: $localPeriod,
-                        onChangeEnd: { period in
-                            store.dispatch(.setPeriod(period))
-                        }
+                        options: periodOptions,
+                        color: .orange,
+                        onEnd: { store.dispatch(.setPeriod(localPeriod)) }
                     )
                     
                     Divider()
@@ -72,527 +74,6 @@ struct ContentView: View {
                 localPeriod = newValue
             }
         }
-    }
-}
-
-// MARK: - Diagonal Stripes Pattern
-struct DiagonalStripesShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let stripeWidth: CGFloat = 8
-        let stripeSpacing: CGFloat = 8
-        
-        let totalWidth = rect.width + rect.height
-        var x: CGFloat = -rect.height
-        
-        while x < totalWidth {
-            path.move(to: CGPoint(x: x, y: rect.maxY))
-            path.addLine(to: CGPoint(x: x + rect.height, y: 0))
-            x += stripeWidth + stripeSpacing
-        }
-        
-        return path
-    }
-}
-
-// MARK: - Rounded Track Shape (обтекающий трек)
-struct RoundedTrackShape: Shape {
-    var thumbPosition: CGFloat
-    var thumbSize: CGFloat
-    
-    var animatableData: CGFloat {
-        get { thumbPosition }
-        set { thumbPosition = newValue }
-    }
-    
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        let radius = rect.height / 2
-        let thumbRadius = thumbSize / 2
-        
-        // Если бегунок близко к концу, создаем вырез
-//        if thumbPosition > rect.width - thumbRadius {
-//            // Левая закругленная часть
-//            path.addArc(center: CGPoint(x: radius, y: rect.midY),
-//                       radius: radius,
-//                       startAngle: .degrees(90),
-//                       endAngle: .degrees(270),
-//                       clockwise: false)
-//            
-//            // Верхняя линия до бегунка
-//            path.addLine(to: CGPoint(x: thumbPosition - thumbRadius * 0.7, y: 0))
-//            
-//            // Плавное обтекание вокруг бегунка (верхняя часть)
-//            path.addQuadCurve(to: CGPoint(x: thumbPosition, y: rect.midY - thumbRadius * 0.5),
-//                            control: CGPoint(x: thumbPosition - thumbRadius * 0.3, y: rect.midY - thumbRadius * 0.7))
-//            
-//            // Плавное обтекание вокруг бегунка (нижняя часть)
-//            path.addQuadCurve(to: CGPoint(x: thumbPosition - thumbRadius * 0.7, y: rect.height),
-//                            control: CGPoint(x: thumbPosition - thumbRadius * 0.3, y: rect.midY + thumbRadius * 0.7))
-//            
-//            // Нижняя линия обратно
-//            path.addLine(to: CGPoint(x: radius, y: rect.height))
-//        } else {
-            // Стандартная капсула
-            path.addRoundedRect(in: CGRect(x: 0, y: 15, width: thumbPosition + thumbRadius * 0.3, height: rect.height),
-                              cornerSize: CGSize(width: radius, height: radius))
-//        }
-        
-        path.closeSubpath()
-        return path
-    }
-}
-
-// MARK: - Slider Section
-struct SliderSection: View {
-    let title: String
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-    let step: Double
-    let displayValue: String
-    let color: Color
-    let onChangeEnd: (Double) -> Void
-    
-    @State private var isDragging = false
-    
-    private let trackHeight: CGFloat = 20
-    private let thumbSize: CGFloat = 52
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack {
-                Text(title)
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                Spacer()
-                Text(displayValue)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-            }
-            
-            ZStack(alignment: .leading) {
-                // Track background with diagonal stripes
-                ZStack {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.gray.opacity(0.12), Color.gray.opacity(0.18)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    
-                    DiagonalStripesShape()
-                        .stroke(Color.gray.opacity(0.15), lineWidth: 3)
-                        .clipShape(Capsule())
-                }
-                .frame(height: trackHeight)
-                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                )
-                
-                // Filled track with flowing effect
-                GeometryReader { geometry in
-                    let thumbPosition = geometry.size.width * CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound))
-                    
-                    ZStack {
-                        // Main gradient fill
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        color.opacity(0.75),
-                                        color.opacity(0.9),
-                                        color,
-                                        color.opacity(0.95)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                        
-                        // Top highlight for 3D effect
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.3),
-                                        Color.white.opacity(0.1),
-                                        Color.clear
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .center
-                                )
-                            )
-
-                        // Bottom shadow for depth
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.clear,
-                                        Color.black.opacity(0.15)
-                                    ],
-                                    startPoint: .center,
-                                    endPoint: .bottom
-                                )
-                            )
-                    }
-                    .frame(height: trackHeight)
-                    .shadow(color: color.opacity(0.4), radius: 3, x: 0, y: 2)
-                    .shadow(color: color.opacity(0.2), radius: 6, x: 0, y: 3)
-                }
-                
-                // Thumb
-                GeometryReader { geometry in
-                    let thumbPosition = CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width
-                    
-                    ZStack {
-                        // Outer glow/shadow
-                        Circle()
-                            .fill(
-                                RadialGradient(
-                                    colors: [color.opacity(0.4), color.opacity(0.2), Color.clear],
-                                    center: .center,
-                                    startRadius: thumbSize / 2,
-                                    endRadius: thumbSize / 2 + 12
-                                )
-                            )
-                            .frame(width: thumbSize + 24, height: thumbSize + 24)
-                            .blur(radius: isDragging ? 4 : 2)
-                            .opacity(isDragging ? 1 : 0.6)
-                        
-                        // Main sphere with vertical gradient
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        color.opacity(0.6),
-                                        color.opacity(0.8),
-                                        color,
-                                        color.opacity(0.95),
-                                        color.opacity(0.85)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(width: thumbSize, height: thumbSize)
-                            .overlay(
-                                // Top highlight (bright spot)
-                                Circle()
-                                    .fill(
-                                        RadialGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.3),
-                                                Color.clear
-                                            ],
-                                            center: UnitPoint(x: 0.5, y: 0.25),
-                                            startRadius: 0,
-                                            endRadius: thumbSize / 3
-                                        )
-                                    )
-                            )
-                            .overlay(
-                                // Inner ring/depression circle
-                                Circle()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.black.opacity(0.35),
-                                                Color.black.opacity(0.2),
-                                                Color.black.opacity(0.1)
-                                            ],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        ),
-                                        lineWidth: 2
-                                    )
-                                    .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-                            )
-                            .overlay(
-                                // Inner shadow for depression
-                                Circle()
-                                    .fill(
-                                        RadialGradient(
-                                            colors: [
-                                                Color.clear,
-                                                Color.black.opacity(0.15),
-                                                Color.clear
-                                            ],
-                                            center: .center,
-                                            startRadius: thumbSize * 0.25,
-                                            endRadius: thumbSize * 0.4
-                                        )
-                                    )
-                                    .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-                            )
-                            .shadow(color: Color.black.opacity(0.3), radius: isDragging ? 8 : 4, x: 0, y: isDragging ? 4 : 2)
-                            .shadow(color: color.opacity(0.6), radius: isDragging ? 10 : 6, x: 0, y: 0)
-                            .scaleEffect(isDragging ? 1.1 : 1.0)
-                    }
-                    .offset(x: thumbPosition - thumbSize / 2, y: -8)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { gesture in
-                                isDragging = true
-                                let percent = min(max(0, gesture.location.x / geometry.size.width), 1)
-                                let newValue = range.lowerBound + (range.upperBound - range.lowerBound) * Double(percent)
-                                let steppedValue = round(newValue / step) * step
-                                value = min(max(steppedValue, range.lowerBound), range.upperBound)
-                            }
-                            .onEnded { _ in
-                                isDragging = false
-                                onChangeEnd(value)
-                            }
-                    )
-                }
-                .frame(height: thumbSize)
-            }
-            .frame(height: thumbSize)
-            
-            // Min/Max labels
-            HStack {
-                Text(range.lowerBound.formatAsCurrency())
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text(range.upperBound.formatAsCurrency())
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
-    }
-}
-
-// MARK: - Period Slider Section
-struct PeriodSliderSection: View {
-    @Binding var selectedPeriod: Int
-    let onChangeEnd: (Int) -> Void
-    
-    let periods = [7, 14, 21, 28]
-    @State private var isDragging = false
-    
-    private let trackHeight: CGFloat = 20
-    private let thumbSize: CGFloat = 52
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack {
-                Text("How long?")
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                Spacer()
-                Text("\(selectedPeriod) days")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-            }
-            
-            ZStack(alignment: .leading) {
-                // Track background with diagonal stripes
-                ZStack {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.gray.opacity(0.12), Color.gray.opacity(0.18)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    
-                    DiagonalStripesShape()
-                        .stroke(Color.gray.opacity(0.15), lineWidth: 3)
-                        .clipShape(Capsule())
-                }
-                .frame(height: trackHeight)
-                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                )
-                
-                // Filled track with flowing effect
-                GeometryReader { geometry in
-                    let index = periods.firstIndex(of: selectedPeriod) ?? 1
-                    let thumbPosition = geometry.size.width * CGFloat(index) / CGFloat(periods.count - 1)
-                    
-                    ZStack {
-                        // Main gradient fill
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.orange.opacity(0.75),
-                                        Color.orange.opacity(0.9),
-                                        Color.orange,
-                                        Color.orange.opacity(0.95)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                        
-                        // Top highlight for 3D effect
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.3),
-                                        Color.white.opacity(0.1),
-                                        Color.clear
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .center
-                                )
-                            )
-                        
-                        // Bottom shadow for depth
-                        RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: thumbSize)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.clear,
-                                        Color.black.opacity(0.15)
-                                    ],
-                                    startPoint: .center,
-                                    endPoint: .bottom
-                                )
-                            )
-                    }
-                    .frame(height: trackHeight)
-                    .shadow(color: Color.orange.opacity(0.4), radius: 3, x: 0, y: 2)
-                    .shadow(color: Color.orange.opacity(0.2), radius: 6, x: 0, y: 3)
-                }
-                
-                // Thumb
-                GeometryReader { geometry in
-                    let index = periods.firstIndex(of: selectedPeriod) ?? 1
-                    let thumbPosition = geometry.size.width * CGFloat(index) / CGFloat(periods.count - 1)
-                    
-                    ZStack {
-                        // Outer glow/shadow
-                        Circle()
-                            .fill(
-                                RadialGradient(
-                                    colors: [Color.orange.opacity(0.4), Color.orange.opacity(0.2), Color.clear],
-                                    center: .center,
-                                    startRadius: thumbSize / 2,
-                                    endRadius: thumbSize / 2 + 12
-                                )
-                            )
-                            .frame(width: thumbSize + 24, height: thumbSize + 24)
-                            .blur(radius: isDragging ? 4 : 2)
-                            .opacity(isDragging ? 1 : 0.6)
-                        
-                        // Main sphere with vertical gradient
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.orange.opacity(0.6),
-                                        Color.orange.opacity(0.8),
-                                        Color.orange,
-                                        Color.orange.opacity(0.95),
-                                        Color.orange.opacity(0.85)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(width: thumbSize, height: thumbSize)
-                            .overlay(
-                                // Top highlight (bright spot)
-                                Circle()
-                                    .fill(
-                                        RadialGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.3),
-                                                Color.clear
-                                            ],
-                                            center: UnitPoint(x: 0.5, y: 0.25),
-                                            startRadius: 0,
-                                            endRadius: thumbSize / 3
-                                        )
-                                    )
-                            )
-                            .overlay(
-                                // Inner ring/depression circle
-                                Circle()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.black.opacity(0.35),
-                                                Color.black.opacity(0.2),
-                                                Color.black.opacity(0.1)
-                                            ],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        ),
-                                        lineWidth: 2
-                                    )
-                                    .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-                            )
-                            .overlay(
-                                // Inner shadow for depression
-                                Circle()
-                                    .fill(
-                                        RadialGradient(
-                                            colors: [
-                                                Color.clear,
-                                                Color.black.opacity(0.15),
-                                                Color.clear
-                                            ],
-                                            center: .center,
-                                            startRadius: thumbSize * 0.25,
-                                            endRadius: thumbSize * 0.4
-                                        )
-                                    )
-                                    .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-                            )
-                            .shadow(color: Color.black.opacity(0.3), radius: isDragging ? 8 : 4, x: 0, y: isDragging ? 4 : 2)
-                            .shadow(color: Color.orange.opacity(0.6), radius: isDragging ? 10 : 6, x: 0, y: 0)
-                            .scaleEffect(isDragging ? 1.1 : 1.0)
-                    }
-                    .offset(x: thumbPosition - thumbSize / 2, y: -8)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { gesture in
-                                isDragging = true
-                                let percent = min(max(0, gesture.location.x / geometry.size.width), 1)
-                                let index = Int(round(percent * Double(periods.count - 1)))
-                                selectedPeriod = periods[index]
-                            }
-                            .onEnded { _ in
-                                isDragging = false
-                                onChangeEnd(selectedPeriod)
-                            }
-                    )
-                }
-                .frame(height: thumbSize)
-            }
-            .frame(height: thumbSize)
-            
-            // Period labels
-            HStack {
-                ForEach(periods, id: \.self) { period in
-                    Text("\(period)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-        }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
     }
 }
 
@@ -692,4 +173,435 @@ struct AlertItem: Identifiable {
 
 #Preview {
     ContentView()
+}
+
+// MARK: - Shared Visual Building Blocks
+struct DiagonalStripesShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let stripeWidth: CGFloat = 8
+        let stripeSpacing: CGFloat = 8
+        
+        let totalWidth = rect.width + rect.height
+        var x: CGFloat = -rect.height
+        
+        while x < totalWidth {
+            path.move(to: CGPoint(x: x, y: rect.maxY))
+            path.addLine(to: CGPoint(x: x + rect.height, y: 0))
+            x += stripeWidth + stripeSpacing
+        }
+        
+        return path
+    }
+}
+
+struct RoundedTrackShape: Shape {
+    var thumbPosition: CGFloat
+    var thumbSize: CGFloat
+    
+    var animatableData: CGFloat {
+        get { thumbPosition }
+        set { thumbPosition = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let radius = rect.height / 2
+        let thumbRadius = thumbSize / 2
+        path.addRoundedRect(
+            in: CGRect(x: 0, y: 0, width: thumbPosition + thumbRadius * 0.3, height: rect.height),
+            cornerSize: CGSize(width: radius, height: radius)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Slider Appearance
+struct SliderAppearance {
+    let color: Color
+    let trackHeight: CGFloat = 20
+    let thumbSize: CGFloat = 52
+    let unfilledColors: [Color] = [Color.gray.opacity(0.12), Color.gray.opacity(0.18)]
+}
+
+// MARK: - Slider Track Background
+struct SliderTrackBackground: View {
+    let appearance: SliderAppearance
+    
+    var body: some View {
+        ZStack {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: appearance.unfilledColors,
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            
+            DiagonalStripesShape()
+                .stroke(Color.gray.opacity(0.15), lineWidth: 3)
+                .clipShape(Capsule())
+        }
+        .frame(height: appearance.trackHeight)
+        .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Slider Filled Track
+struct SliderFilledTrack: View {
+    let thumbPosition: CGFloat
+    let appearance: SliderAppearance
+    
+    var body: some View {
+        ZStack {
+            // Main gradient fill
+            RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            appearance.color.opacity(0.75),
+                            appearance.color.opacity(0.9),
+                            appearance.color,
+                            appearance.color.opacity(0.95)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+            
+            // Top highlight for 3D effect
+            RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.3),
+                            Color.white.opacity(0.1),
+                            Color.clear
+                        ],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                )
+            
+            // Bottom shadow for depth
+            RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.clear,
+                            Color.black.opacity(0.15)
+                        ],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+                )
+        }
+        .frame(height: appearance.trackHeight)
+        .shadow(color: appearance.color.opacity(0.4), radius: 3, x: 0, y: 2)
+        .shadow(color: appearance.color.opacity(0.2), radius: 6, x: 0, y: 3)
+    }
+}
+
+// MARK: - Slider Thumb
+struct SliderThumb: View {
+    let color: Color
+    let thumbSize: CGFloat
+    let isDragging: Bool
+    let thumbPosition: CGFloat
+    
+    var body: some View {
+        ZStack {
+            // Outer glow/shadow
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [color.opacity(0.4), color.opacity(0.2), Color.clear],
+                        center: .center,
+                        startRadius: thumbSize / 2,
+                        endRadius: thumbSize / 2 + 12
+                    )
+                )
+                .frame(width: thumbSize + 24, height: thumbSize + 24)
+                .blur(radius: isDragging ? 4 : 2)
+                .opacity(isDragging ? 1 : 0.6)
+            
+            // Main sphere with vertical gradient
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            color.opacity(0.6),
+                            color.opacity(0.8),
+                            color,
+                            color.opacity(0.95),
+                            color.opacity(0.85)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: thumbSize, height: thumbSize)
+                .overlay(
+                    // Top highlight (bright spot)
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    Color.white.opacity(0.6),
+                                    Color.white.opacity(0.3),
+                                    Color.clear
+                                ],
+                                center: UnitPoint(x: 0.5, y: 0.25),
+                                startRadius: 0,
+                                endRadius: thumbSize / 3
+                            )
+                        )
+                )
+                .overlay(
+                    // Inner ring/depression circle
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.black.opacity(0.35),
+                                    Color.black.opacity(0.2),
+                                    Color.black.opacity(0.1)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 2
+                        )
+                        .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
+                )
+                .overlay(
+                    // Inner shadow for depression
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    Color.clear,
+                                    Color.black.opacity(0.15),
+                                    Color.clear
+                                ],
+                                center: .center,
+                                startRadius: thumbSize * 0.25,
+                                endRadius: thumbSize * 0.4
+                            )
+                        )
+                        .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: isDragging ? 8 : 4, x: 0, y: isDragging ? 4 : 2)
+                .shadow(color: color.opacity(0.6), radius: isDragging ? 10 : 6, x: 0, y: 0)
+                .scaleEffect(isDragging ? 1.1 : 1.0)
+        }
+        .offset(x: thumbPosition - thumbSize / 2 - 10, y: 0)
+    }
+}
+
+// MARK: - Slider Base
+struct SliderBase: View {
+    let appearance: SliderAppearance
+    let progress: CGFloat     // 0...1
+    @Binding var isDragging: Bool
+    
+    let onDragChanged: (CGFloat) -> Void
+    let onDragEnded: () -> Void
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let thumbX = max(appearance.thumbSize / 2,
+                             min(width - appearance.thumbSize / 2,
+                                 width * progress))
+            
+            ZStack(alignment: .leading) {
+                SliderTrackBackground(appearance: appearance)
+                
+                SliderFilledTrack(
+                    thumbPosition: thumbX,
+                    appearance: appearance
+                )
+                
+                SliderThumb(
+                    color: appearance.color,
+                    thumbSize: appearance.thumbSize,
+                    isDragging: isDragging,
+                    thumbPosition: thumbX
+                )
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { gesture in
+                            isDragging = true
+                            let percent = min(max(0, gesture.location.x / width), 1)
+                            onDragChanged(percent)
+                        }
+                        .onEnded { _ in
+                            isDragging = false
+                            onDragEnded()
+                        }
+                )
+            }
+        }
+        .frame(height: appearance.thumbSize)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
+    }
+}
+
+// MARK: - Amount Slider Section
+struct AmountSliderSection: View {
+    let title: String
+    @Binding var amount: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    let color: Color
+    let onEnd: () -> Void
+    
+    @State private var isDragging = false
+    private let appearance: SliderAppearance
+    
+    init(title: String,
+         amount: Binding<Double>,
+         range: ClosedRange<Double>,
+         step: Double,
+         color: Color,
+         onEnd: @escaping () -> Void) {
+        self.title = title
+        self._amount = amount
+        self.range = range
+        self.step = step
+        self.color = color
+        self.onEnd = onEnd
+        self.appearance = SliderAppearance(color: color)
+    }
+    
+    private var progressBinding: Binding<CGFloat> {
+        Binding<CGFloat>(
+            get: {
+                CGFloat((amount - range.lowerBound) / (range.upperBound - range.lowerBound))
+            },
+            set: { newProgress in
+                let clamped = min(max(0, newProgress), 1)
+                let newValue = range.lowerBound + Double(clamped) * (range.upperBound - range.lowerBound)
+                let stepped = round(newValue / step) * step
+                amount = min(max(stepped, range.lowerBound), range.upperBound)
+            }
+        )
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Header(title: title, valueText: "₦\(amount.formatAsCurrency())")
+            
+            SliderBase(
+                appearance: appearance,
+                progress: progressBinding.wrappedValue,
+                isDragging: $isDragging,
+                onDragChanged: { progressBinding.wrappedValue = $0 },
+                onDragEnded: onEnd
+            )
+            
+            Labels(minText: range.lowerBound.formatAsCurrency(),
+                   maxText: range.upperBound.formatAsCurrency())
+        }
+    }
+}
+
+// MARK: - Period Slider Section
+struct PeriodSliderSection: View {
+    let title: String
+    @Binding var selectedPeriod: Int
+    let options: [Int]
+    let color: Color
+    let onEnd: () -> Void
+    
+    @State private var isDragging = false
+    private let appearance: SliderAppearance
+    
+    init(title: String,
+         selectedPeriod: Binding<Int>,
+         options: [Int],
+         color: Color,
+         onEnd: @escaping () -> Void) {
+        self.title = title
+        self._selectedPeriod = selectedPeriod
+        self.options = options
+        self.color = color
+        self.onEnd = onEnd
+        self.appearance = SliderAppearance(color: color)
+    }
+    
+    private var progressBinding: Binding<CGFloat> {
+        Binding<CGFloat>(
+            get: {
+                guard let index = options.firstIndex(of: selectedPeriod), options.count > 1 else { return 0 }
+                return CGFloat(index) / CGFloat(options.count - 1)
+            },
+            set: { newProgress in
+                guard options.count > 1 else { return }
+                let clamped = min(max(0, newProgress), 1)
+                let index = Int(round(clamped * CGFloat(options.count - 1)))
+                selectedPeriod = options[index]
+            }
+        )
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Header(title: title, valueText: "\(selectedPeriod) days")
+            
+            SliderBase(
+                appearance: appearance,
+                progress: progressBinding.wrappedValue,
+                isDragging: $isDragging,
+                onDragChanged: { progressBinding.wrappedValue = $0 },
+                onDragEnded: onEnd
+            )
+            
+            Labels(minText: "7", maxText: "28")
+        }
+    }
+}
+
+// MARK: - Reusable Headers and Labels
+struct Header: View {
+    let title: String
+    let valueText: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.title2)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
+            Spacer()
+            Text(valueText)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+        }
+    }
+}
+
+struct Labels: View {
+    let minText: String
+    let maxText: String
+    
+    var body: some View {
+        HStack {
+            Text(minText)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(maxText)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
 }
