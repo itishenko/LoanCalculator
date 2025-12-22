@@ -230,10 +230,10 @@ fun CustomSlider(
                         Color.Transparent
                     ),
                     center = Offset(thumbX - 10, thumbCenterY),
-                    radius = scaledThumbSize * 0.35f
+                    radius = scaledThumbSize * 0.55f
                 ),
                 center = Offset(thumbX - 10, thumbCenterY),
-                radius = scaledThumbSize * 0.35f
+                radius = scaledThumbSize * 0.55f
             )
         }
     }

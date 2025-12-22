@@ -261,5 +261,218 @@ class IntegrationTests {
         assertTrue(state.isValid)
         assertEquals(57500.0, state.totalRepayment, 0.01)
     }
+    
+    @Test
+    fun `test multiple state updates`() {
+        var state = LoanState()
+        
+        // Multiple amount changes
+        state = loanReducer(state, LoanAction.SetAmount(10000.0))
+        state = loanReducer(state, LoanAction.SetAmount(20000.0))
+        state = loanReducer(state, LoanAction.SetAmount(30000.0))
+        
+        assertEquals(30000.0, state.amount, 0.01)
+        
+        // Multiple period changes
+        state = loanReducer(state, LoanAction.SetPeriod(7))
+        state = loanReducer(state, LoanAction.SetPeriod(14))
+        state = loanReducer(state, LoanAction.SetPeriod(28))
+        
+        assertEquals(28, state.periodDays)
+    }
+    
+    @Test
+    fun `test submission clears results`() {
+        var state = LoanState(
+            submissionResult = SubmissionResult.Success(123)
+        )
+        
+        // Setting amount should clear result
+        state = loanReducer(state, LoanAction.SetAmount(15000.0))
+        assertNull(state.submissionResult)
+        
+        // Add result back
+        state = loanReducer(state, LoanAction.SubmissionSuccess(456))
+        assertNotNull(state.submissionResult)
+        
+        // Setting period should clear result
+        state = loanReducer(state, LoanAction.SetPeriod(21))
+        assertNull(state.submissionResult)
+    }
+    
+    @Test
+    fun `test interest calculation with different rates`() {
+        val state1 = LoanState(amount = 10000.0, interestRate = 0.15)
+        assertEquals(11500.0, state1.totalRepayment, 0.01)
+        
+        val state2 = LoanState(amount = 10000.0, interestRate = 0.20)
+        assertEquals(12000.0, state2.totalRepayment, 0.01)
+        
+        val state3 = LoanState(amount = 10000.0, interestRate = 0.10)
+        assertEquals(11000.0, state3.totalRepayment, 0.01)
+    }
+    
+    @Test
+    fun `test repayment date with different periods`() {
+        val calendar = Calendar.getInstance()
+        
+        val state7 = LoanState(periodDays = 7)
+        val expected7 = calendar.apply { 
+            time = Date()
+            add(Calendar.DAY_OF_YEAR, 7) 
+        }
+        
+        val actual7 = Calendar.getInstance().apply { time = state7.repaymentDate }
+        assertEquals(expected7.get(Calendar.DAY_OF_YEAR), actual7.get(Calendar.DAY_OF_YEAR))
+        
+        val state28 = LoanState(periodDays = 28)
+        val expected28 = Calendar.getInstance().apply { 
+            time = Date()
+            add(Calendar.DAY_OF_YEAR, 28) 
+        }
+        
+        val actual28 = Calendar.getInstance().apply { time = state28.repaymentDate }
+        assertEquals(expected28.get(Calendar.DAY_OF_YEAR), actual28.get(Calendar.DAY_OF_YEAR))
+    }
+}
+
+/**
+ * Additional Edge Cases and Validation Tests
+ */
+class EdgeCasesAndValidationTests {
+    
+    @Test
+    fun `test boundary - minimum valid amount`() {
+        val state = LoanState(amount = 5000.0, periodDays = 14)
+        assertTrue(state.isValid)
+    }
+    
+    @Test
+    fun `test boundary - maximum valid amount`() {
+        val state = LoanState(amount = 50000.0, periodDays = 14)
+        assertTrue(state.isValid)
+    }
+    
+    @Test
+    fun `test boundary - just below minimum`() {
+        val state = LoanState(amount = 4999.99, periodDays = 14)
+        assertFalse(state.isValid)
+    }
+    
+    @Test
+    fun `test boundary - just above maximum`() {
+        val state = LoanState(amount = 50000.01, periodDays = 14)
+        assertFalse(state.isValid)
+    }
+    
+    @Test
+    fun `test all invalid periods`() {
+        val invalidPeriods = listOf(1, 5, 6, 8, 10, 13, 15, 20, 30)
+        
+        invalidPeriods.forEach { period ->
+            val state = LoanState(amount = 10000.0, periodDays = period)
+            assertFalse("Period $period should be invalid", state.isValid)
+        }
+    }
+    
+    @Test
+    fun `test zero amount`() {
+        val state = LoanState(amount = 0.0, periodDays = 14)
+        assertFalse(state.isValid)
+        assertEquals(0.0, state.totalRepayment, 0.01)
+    }
+    
+    @Test
+    fun `test negative amount`() {
+        val state = LoanState(amount = -1000.0, periodDays = 14)
+        assertFalse(state.isValid)
+    }
+    
+    @Test
+    fun `test negative period`() {
+        val state = LoanState(amount = 10000.0, periodDays = -7)
+        assertFalse(state.isValid)
+    }
+}
+
+/**
+ * Redux Store Tests
+ */
+class StoreTests {
+    
+    private lateinit var store: Store
+    
+    @Before
+    fun setup() {
+        store = Store()
+    }
+    
+    @Test
+    fun `test store initial state`() {
+        assertEquals(5000.0, store.state.value.amount, 0.01)
+        assertEquals(14, store.state.value.periodDays)
+        assertFalse(store.state.value.isLoading)
+        assertNull(store.state.value.submissionResult)
+    }
+    
+    @Test
+    fun `test store dispatch updates state`() {
+        store.dispatch(LoanAction.SetAmount(20000.0))
+        assertEquals(20000.0, store.state.value.amount, 0.01)
+        
+        store.dispatch(LoanAction.SetPeriod(28))
+        assertEquals(28, store.state.value.periodDays)
+    }
+    
+    @Test
+    fun `test store multiple dispatches`() {
+        store.dispatch(LoanAction.SetAmount(10000.0))
+        store.dispatch(LoanAction.SetPeriod(21))
+        store.dispatch(LoanAction.SubmissionStarted)
+        
+        assertEquals(10000.0, store.state.value.amount, 0.01)
+        assertEquals(21, store.state.value.periodDays)
+        assertTrue(store.state.value.isLoading)
+    }
+}
+
+/**
+ * Performance Tests (optional, for benchmarking)
+ */
+class PerformanceTests {
+    
+    @Test
+    fun `test state calculation performance`() {
+        val startTime = System.currentTimeMillis()
+        
+        repeat(1000) {
+            val state = LoanState(amount = 25000.0, periodDays = 14)
+            state.totalRepayment
+            state.repaymentDate
+            state.isValid
+        }
+        
+        val endTime = System.currentTimeMillis()
+        val duration = endTime - startTime
+        
+        // Should complete in less than 1 second
+        assertTrue("Performance test took ${duration}ms", duration < 1000)
+    }
+    
+    @Test
+    fun `test reducer performance`() {
+        var state = LoanState()
+        val startTime = System.currentTimeMillis()
+        
+        repeat(1000) { i ->
+            state = loanReducer(state, LoanAction.SetAmount(i.toDouble() * 100))
+        }
+        
+        val endTime = System.currentTimeMillis()
+        val duration = endTime - startTime
+        
+        // Should complete in less than 1 second
+        assertTrue("Performance test took ${duration}ms", duration < 1000)
+    }
 }
 
