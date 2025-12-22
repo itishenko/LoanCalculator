@@ -2,13 +2,22 @@ package com.loancalculator.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light Theme Colors - matching screenshot
-val Green40 = Color(0xFF8BC34A)  // Bright lime green for amount slider
-val Green80 = Color(0xFF9CCC65)
+// Slider colors
+// Green slider (Amount)
+val GreenSliderDark = Color(0xFF648228)   // RGB(100, 130, 40) - dark green
+val GreenSliderLight = Color(0xFFD7F369)  // RGB(215, 243, 105) - light green
+
+// Orange slider (Period)
+val OrangeSliderDark = Color(0xFFD08E46)  // RGB(208, 142, 70) - dark orange
+val OrangeSliderLight = Color(0xFFFAE678) // RGB(250, 230, 120) - light yellow
+
+// Legacy colors for theme
+val Green40 = GreenSliderDark
+val Green80 = GreenSliderLight
 val Green90 = Color(0xFFAED581)
 
-val Orange40 = Color(0xFFD4A843)  // Golden/amber for period slider (matching screenshot)
-val Orange80 = Color(0xFFE0B558)
+val Orange40 = OrangeSliderDark
+val Orange80 = OrangeSliderLight
 val Orange90 = Color(0xFFEAC56D)
 
 val Blue40 = Color(0xFF1976D2)

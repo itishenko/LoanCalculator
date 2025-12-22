@@ -24,6 +24,7 @@ import com.loancalculator.redux.LoanAction
 import com.loancalculator.redux.Store
 import com.loancalculator.redux.SubmissionResult
 import com.loancalculator.ui.components.CustomSlider
+import com.loancalculator.ui.theme.*
 import com.loancalculator.utils.NumberFormatter
 import kotlinx.coroutines.launch
 
@@ -73,20 +74,19 @@ fun LoanCalculatorScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            // Amount Slider
             SliderSection(
                 title = "How much?",
                 value = state.amount.toFloat(),
                 valueRange = 5000f..50000f,
                 step = 1000f,
                 displayValue = "₦${NumberFormatter.formatAsCurrency(state.amount)}",
-                trackColor = MaterialTheme.colorScheme.primary,
+                trackColor1 = GreenSliderDark,
+                trackColor2 = GreenSliderLight,
                 onValueChange = { newValue ->
                     store.dispatch(LoanAction.SetAmount(newValue.toDouble()))
                 }
             )
             
-            // Period Slider
             PeriodSliderSection(
                 selectedPeriod = state.periodDays,
                 onPeriodChange = { newPeriod ->
@@ -96,7 +96,6 @@ fun LoanCalculatorScreen(
             
             Spacer(modifier = Modifier.weight(1f))
             
-            // Submit Button
             SubmitButton(
                 enabled = state.isValid && !state.isLoading,
                 isLoading = state.isLoading,
@@ -109,7 +108,6 @@ fun LoanCalculatorScreen(
         }
     }
     
-    // Result Dialog
     if (showDialog) {
         state.submissionResult?.let { result ->
             ResultDialog(
@@ -130,7 +128,8 @@ fun SliderSection(
     valueRange: ClosedFloatingPointRange<Float>,
     step: Float,
     displayValue: String,
-    trackColor: Color,
+    trackColor1: Color,
+    trackColor2: Color,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -163,7 +162,8 @@ fun SliderSection(
                 onValueChange(stepped.coerceIn(valueRange))
             },
             valueRange = valueRange,
-            trackColor = trackColor
+            trackColor1 = trackColor1,
+            trackColor2 = trackColor2
         )
         
         Row(
@@ -221,7 +221,8 @@ fun PeriodSliderSection(
                 onPeriodChange(periods[index])
             },
             valueRange = 0f..(periods.size - 1).toFloat(),
-            trackColor = MaterialTheme.colorScheme.secondary
+            trackColor1 = OrangeSliderDark,
+            trackColor2 = OrangeSliderLight
         )
 
         Row(

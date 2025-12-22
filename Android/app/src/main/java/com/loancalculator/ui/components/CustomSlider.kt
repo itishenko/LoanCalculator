@@ -32,7 +32,8 @@ fun CustomSlider(
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
     modifier: Modifier = Modifier,
-    trackColor: Color = MaterialTheme.colorScheme.primary,
+    trackColor1: Color = MaterialTheme.colorScheme.primary,
+    trackColor2: Color = MaterialTheme.colorScheme.primary,
     trackHeight: Dp = 20.dp,
     thumbSize: Dp = 52.dp,
     enabled: Boolean = true
@@ -59,9 +60,8 @@ fun CustomSlider(
         val thumbX = progress * width
         
         // Pre-calculate Dp to Px conversions for Canvas
-        val dp8Px = with(density) { 8.dp.toPx() }
         val dp12Px = with(density) { 12.dp.toPx() }
-        val dp1_5Px = with(density) { 1.5.dp.toPx() }
+        val dp2Px = with(density) { 2.dp.toPx() }
         
         Canvas(
             modifier = Modifier
@@ -98,83 +98,130 @@ fun CustomSlider(
                 cornerRadius = CornerRadius(trackHeightPx / 2)
             )
             
-            // Filled track
+            // Filled track with bulge around thumb
             val fillWidth = max(trackHeightPx, thumbX)
-            drawRoundRect(
+            val radius = trackHeightPx / 2
+            val thumbRadius = thumbSizePx / 2
+            
+            val trackPath = Path().apply {
+                if (thumbX > thumbRadius + 50) {
+                    // Left rounded cap
+                    arcTo(
+                        rect = androidx.compose.ui.geometry.Rect(
+                            left = 0f,
+                            top = trackTop,
+                            right = trackHeightPx,
+                            bottom = trackTop + trackHeightPx
+                        ),
+                        startAngleDegrees = 90f,
+                        sweepAngleDegrees = 180f,
+                        forceMoveTo = false
+                    )
+                    
+                    // Top line to bulge start
+                    val bulgeStartX = thumbX - thumbRadius - thumbRadius
+                    lineTo(bulgeStartX, trackTop)
+                    
+                    // Top bulge curve (going up)
+                    cubicTo(
+                        x1 = thumbX - 1.25f * thumbRadius + 6.25f, 
+                        y1 = trackTop,
+                        x2 = thumbX - 1.25f * thumbRadius + 8.75f, 
+                        y2 = trackTop,
+                        x3 = thumbX - 1.25f * thumbRadius + 16.25f, 
+                        y3 = trackTop - 9f
+                    )
+                    
+                    // Vertical line on right side
+                    lineTo(thumbX - 1.25f * thumbRadius + 16.25f, trackTop + trackHeightPx + 10f)
+                    
+                    // Bottom bulge curve (going down)
+                    cubicTo(
+                        x1 = thumbX - 1.25f * thumbRadius + 8.75f, 
+                        y1 = trackTop + trackHeightPx,
+                        x2 = thumbX - 1.25f * thumbRadius + 6.25f, 
+                        y2 = trackTop + trackHeightPx,
+                        x3 = thumbX - 2 * thumbRadius + 5, 
+                        y3 = trackTop + trackHeightPx
+                    )
+                    
+                    // Line to thumb position
+                    lineTo(thumbX, trackTop + trackHeightPx)
+                    
+                    // Line back to left cap bottom
+                    lineTo(radius, trackTop + trackHeightPx)
+                    
+                    close()
+                } else {
+                    // Simple rounded cap for small positions
+                    addRoundRect(
+                        androidx.compose.ui.geometry.RoundRect(
+                            left = 0f,
+                            top = trackTop,
+                            right = fillWidth,
+                            bottom = trackTop + trackHeightPx,
+                            cornerRadius = CornerRadius(radius)
+                        )
+                    )
+                }
+            }
+            
+            drawPath(
+                path = trackPath,
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        trackColor.copy(alpha = 0.75f),
-                        trackColor.copy(alpha = 0.9f),
-                        trackColor,
-                        trackColor.copy(alpha = 0.95f)
-                    )
-                ),
-                topLeft = Offset(0f, trackTop),
-                size = Size(fillWidth, trackHeightPx),
-                cornerRadius = CornerRadius(trackHeightPx / 2)
+                        trackColor1,
+                        trackColor2
+                    ),
+                    startX = 0f,
+                    endX = thumbX
+                )
             )
             
-            // Thumb
+            // Thumb - using light color
             val thumbCenterY = centerY
-            val thumbScale = if (isDragging) 1.1f else 1.0f
+            val thumbScale = 1.0f
             val scaledThumbSize = thumbSizePx * thumbScale
             
             // Outer glow
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        trackColor.copy(alpha = 0.4f),
-                        trackColor.copy(alpha = 0.2f),
+                        trackColor2.copy(alpha = 0.4f),
+                        trackColor2.copy(alpha = 0.2f),
                         Color.Transparent
                     ),
                     center = Offset(thumbX, thumbCenterY),
                     radius = scaledThumbSize / 2 + dp12Px
                 ),
-                center = Offset(thumbX, thumbCenterY),
+                center = Offset(thumbX - 10, thumbCenterY),
                 radius = scaledThumbSize / 2 + dp12Px
             )
             
-            // Main sphere with vertical gradient
+            // Main sphere - solid color
+            drawCircle(
+                color = trackColor2,
+                center = Offset(thumbX - 10, thumbCenterY),
+                radius = scaledThumbSize / 2
+            )
+            
+            // Inner ring with gradient
             drawCircle(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        trackColor.copy(alpha = 0.6f),
-                        trackColor.copy(alpha = 0.8f),
-                        trackColor,
-                        trackColor.copy(alpha = 0.95f),
-                        trackColor.copy(alpha = 0.85f)
+                        Color.Black.copy(alpha = 0.35f),
+                        Color.Black.copy(alpha = 0.2f),
+                        Color.Black.copy(alpha = 0.1f)
                     ),
-                    startY = thumbCenterY - scaledThumbSize / 2,
-                    endY = thumbCenterY + scaledThumbSize / 2
+                    startY = thumbCenterY - scaledThumbSize * 0.35f,
+                    endY = thumbCenterY + scaledThumbSize * 0.35f
                 ),
-                center = Offset(thumbX, thumbCenterY),
-                radius = scaledThumbSize / 2
+                center = Offset(thumbX - 10, thumbCenterY),
+                radius = scaledThumbSize * 0.35f,
+                style = Stroke(width = dp2Px)
             )
             
-            // Top highlight (bright spot)
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.6f),
-                        Color.White.copy(alpha = 0.3f),
-                        Color.Transparent
-                    ),
-                    center = Offset(thumbX, thumbCenterY - scaledThumbSize / 4),
-                    radius = scaledThumbSize / 3
-                ),
-                center = Offset(thumbX, thumbCenterY),
-                radius = scaledThumbSize / 2
-            )
-            
-            // Inner ring
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.2f),
-                center = Offset(thumbX, thumbCenterY),
-                radius = scaledThumbSize * 0.36f,
-                style = Stroke(width = dp1_5Px)
-            )
-            
-            // Inner depression
+            // Inner depression (radial gradient)
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
@@ -182,11 +229,11 @@ fun CustomSlider(
                         Color.Black.copy(alpha = 0.15f),
                         Color.Transparent
                     ),
-                    center = Offset(thumbX, thumbCenterY),
-                    radius = scaledThumbSize * 0.6f
+                    center = Offset(thumbX - 10, thumbCenterY),
+                    radius = scaledThumbSize * 0.35f
                 ),
-                center = Offset(thumbX, thumbCenterY),
-                radius = scaledThumbSize * 0.55f
+                center = Offset(thumbX - 10, thumbCenterY),
+                radius = scaledThumbSize * 0.35f
             )
         }
     }

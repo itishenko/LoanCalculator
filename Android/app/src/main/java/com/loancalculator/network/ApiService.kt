@@ -4,7 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 /**
- * API Service interface for Retrofit
+ * API Service interface
  */
 interface ApiService {
     @POST("posts")

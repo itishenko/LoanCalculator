@@ -9,19 +9,13 @@ import java.util.Date
 data class LoanState(
     val amount: Double = 5000.0,
     val periodDays: Int = 14,
-    val interestRate: Double = 0.15, // 15%
+    val interestRate: Double = 0.15,
     val isLoading: Boolean = false,
     val submissionResult: SubmissionResult? = null
 ) {
-    /**
-     * Calculated total repayment amount
-     */
     val totalRepayment: Double
         get() = amount * (1 + interestRate)
 
-    /**
-     * Calculated repayment date
-     */
     val repaymentDate: Date
         get() {
             val calendar = Calendar.getInstance()
@@ -29,9 +23,6 @@ data class LoanState(
             return calendar.time
         }
 
-    /**
-     * Validation check
-     */
     val isValid: Boolean
         get() = amount in 5000.0..50000.0 && periodDays in listOf(7, 14, 21, 28)
 }
