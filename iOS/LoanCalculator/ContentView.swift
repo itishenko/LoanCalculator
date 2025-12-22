@@ -26,7 +26,8 @@ struct ContentView: View {
                         amount: $localAmount,
                         range: amountRange,
                         step: amountStep,
-                        color: .green,
+                        color1: Color(red: 100/255, green: 130/255, blue: 40/255),
+                        color2: Color(red: 215/255, green: 243/255, blue: 105/255),
                         onEnd: { store.dispatch(.setAmount(localAmount)) }
                     )
                     
@@ -35,7 +36,8 @@ struct ContentView: View {
                         title: "How long?",
                         selectedPeriod: $localPeriod,
                         options: periodOptions,
-                        color: .orange,
+                        color1: Color(red: 208/255, green: 142/255, blue: 70/255),
+                        color2: Color(red: 250/255, green: 230/255, blue: 120/255),
                         onEnd: { store.dispatch(.setPeriod(localPeriod)) }
                     )
                     
@@ -226,7 +228,7 @@ struct RoundedTrackShape: Shape {
         path.addLine(to: CGPoint(x: thumbPosition - thumbRadius - thumbRadius , y: 0))
         
         path.addCurve(
-            to: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 16.25, y: -10),
+            to: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 16.25, y: -9),
             control1: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 6.25, y: 0),
             control2: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 8.75, y: 0)
         )
@@ -252,7 +254,8 @@ struct RoundedTrackShape: Shape {
 
 // MARK: - Slider Appearance
 struct SliderAppearance {
-    let color: Color
+    let color1: Color
+    let color2: Color
     let trackHeight: CGFloat = 20
     let thumbSize: CGFloat = 52
     let unfilledColors: [Color] = [Color.gray.opacity(0.12), Color.gray.opacity(0.18)]
@@ -293,51 +296,19 @@ struct SliderFilledTrack: View {
     
     var body: some View {
         ZStack {
-            // Main gradient fill
             RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
                 .fill(
                     LinearGradient(
                         colors: [
-                            appearance.color.opacity(0.75),
-                            appearance.color.opacity(0.9),
-                            appearance.color,
-                            appearance.color.opacity(0.95)
+                            appearance.color1,
+                            appearance.color2
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-            
-            // Top highlight for 3D effect
-            RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.3),
-                            Color.white.opacity(0.1),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .center
-                    )
-                )
-            
-            // Bottom shadow for depth
-            RoundedTrackShape(thumbPosition: thumbPosition, thumbSize: appearance.thumbSize)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.clear,
-                            Color.black.opacity(0.15)
-                        ],
-                        startPoint: .center,
-                        endPoint: .bottom
-                    )
-                )
         }
         .frame(height: appearance.trackHeight)
-        .shadow(color: appearance.color.opacity(0.4), radius: 3, x: 0, y: 2)
-        .shadow(color: appearance.color.opacity(0.2), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -463,7 +434,7 @@ struct SliderBase: View {
                 )
                 
                 SliderThumb(
-                    color: appearance.color,
+                    color: appearance.color2,
                     thumbSize: appearance.thumbSize,
                     isDragging: isDragging,
                     thumbPosition: thumbX
@@ -493,7 +464,8 @@ struct AmountSliderSection: View {
     @Binding var amount: Double
     let range: ClosedRange<Double>
     let step: Double
-    let color: Color
+    let color1: Color
+    let color2: Color
     let onEnd: () -> Void
     
     @State private var isDragging = false
@@ -503,15 +475,17 @@ struct AmountSliderSection: View {
          amount: Binding<Double>,
          range: ClosedRange<Double>,
          step: Double,
-         color: Color,
+         color1: Color,
+         color2: Color,
          onEnd: @escaping () -> Void) {
         self.title = title
         self._amount = amount
         self.range = range
         self.step = step
-        self.color = color
+        self.color1 = color1
+        self.color2 = color2
         self.onEnd = onEnd
-        self.appearance = SliderAppearance(color: color)
+        self.appearance = SliderAppearance(color1: color1, color2: color2)
     }
     
     private var progressBinding: Binding<CGFloat> {
@@ -551,7 +525,8 @@ struct PeriodSliderSection: View {
     let title: String
     @Binding var selectedPeriod: Int
     let options: [Int]
-    let color: Color
+    let color1: Color
+    let color2: Color
     let onEnd: () -> Void
     
     @State private var isDragging = false
@@ -560,14 +535,16 @@ struct PeriodSliderSection: View {
     init(title: String,
          selectedPeriod: Binding<Int>,
          options: [Int],
-         color: Color,
+         color1: Color,
+         color2: Color,
          onEnd: @escaping () -> Void) {
         self.title = title
         self._selectedPeriod = selectedPeriod
         self.options = options
-        self.color = color
+        self.color1 = color1
+        self.color2 = color2
         self.onEnd = onEnd
-        self.appearance = SliderAppearance(color: color)
+        self.appearance = SliderAppearance(color1: color1, color2: color2)
     }
     
     private var progressBinding: Binding<CGFloat> {
