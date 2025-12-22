@@ -39,9 +39,6 @@ struct ContentView: View {
                         onEnd: { store.dispatch(.setPeriod(localPeriod)) }
                     )
                     
-                    Divider()
-                        .padding(.vertical, 10)
-                    
                     // Submit Button
                     SubmitButton(
                         isLoading: store.state.isLoading,
@@ -208,10 +205,46 @@ struct RoundedTrackShape: Shape {
         var path = Path()
         let radius = rect.height / 2
         let thumbRadius = thumbSize / 2
-        path.addRoundedRect(
-            in: CGRect(x: 0, y: 0, width: thumbPosition + thumbRadius * 0.3, height: rect.height),
-            cornerSize: CGSize(width: radius, height: radius)
+  
+        guard thumbPosition > thumbRadius + 10 else {
+            path.addArc(center: CGPoint(x: radius, y: rect.midY),
+                        radius: radius,
+                        startAngle: .degrees(90),
+                        endAngle: .degrees(270),
+                        clockwise: false)
+            path.addEllipse(in: CGRect(x: thumbPosition - thumbRadius, y: -15, width: thumbRadius*2, height: thumbRadius*2))
+            path.closeSubpath()
+            return path
+        }
+        
+        path.addArc(center: CGPoint(x: radius, y: rect.midY),
+                    radius: radius,
+                    startAngle: .degrees(90),
+                    endAngle: .degrees(270),
+                    clockwise: false)
+        
+        path.addLine(to: CGPoint(x: thumbPosition - thumbRadius - thumbRadius , y: 0))
+        
+        path.addCurve(
+            to: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 16.25, y: -10),
+            control1: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 6.25, y: 0),
+            control2: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 8.75, y: 0)
         )
+        
+        path.addLine(to: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 16.25, y: rect.height + 10))
+        
+        path.addCurve(
+            to: CGPoint(x: thumbPosition - 2 * thumbRadius + 5, y: rect.height),
+            control1: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 8.75, y: rect.height),
+            control2: CGPoint(x: thumbPosition - 1.25 * thumbRadius + 6.25, y: rect.height)
+        )
+        
+        path.addLine(to: CGPoint(x: thumbPosition, y: rect.height))
+        
+        path.addEllipse(in: CGRect(x: thumbPosition - thumbRadius, y: -15, width: thumbRadius*2, height: thumbRadius*2))
+                
+        path.addLine(to: CGPoint(x: radius, y: rect.height))
+        
         path.closeSubpath()
         return path
     }
@@ -332,38 +365,38 @@ struct SliderThumb: View {
                 .opacity(isDragging ? 1 : 0.6)
             
             // Main sphere with vertical gradient
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            color.opacity(0.6),
-                            color.opacity(0.8),
-                            color,
-                            color.opacity(0.95),
-                            color.opacity(0.85)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: thumbSize, height: thumbSize)
-                .overlay(
-                    // Top highlight (bright spot)
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [
-                                    Color.white.opacity(0.6),
-                                    Color.white.opacity(0.3),
-                                    Color.clear
-                                ],
-                                center: UnitPoint(x: 0.5, y: 0.25),
-                                startRadius: 0,
-                                endRadius: thumbSize / 3
-                            )
-                        )
-                )
-                .overlay(
+//            Circle()
+//                .fill(
+//                    LinearGradient(
+//                        colors: [
+//                            color.opacity(0.6),
+//                            color.opacity(0.8),
+//                            color,
+//                            color.opacity(0.95),
+//                            color.opacity(0.85)
+//                        ],
+//                        startPoint: .top,
+//                        endPoint: .bottom
+//                    )
+//                )
+//                .frame(width: thumbSize, height: thumbSize)
+//                .overlay(
+//                    // Top highlight (bright spot)
+//                    Circle()
+//                        .fill(
+//                            RadialGradient(
+//                                colors: [
+//                                    Color.white.opacity(0.6),
+//                                    Color.white.opacity(0.3),
+//                                    Color.clear
+//                                ],
+//                                center: UnitPoint(x: 0.5, y: 0.25),
+//                                startRadius: 0,
+//                                endRadius: thumbSize / 3
+//                            )
+//                        )
+//                )
+//                .overlay(
                     // Inner ring/depression circle
                     Circle()
                         .stroke(
@@ -379,7 +412,7 @@ struct SliderThumb: View {
                             lineWidth: 2
                         )
                         .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-                )
+//                )
                 .overlay(
                     // Inner shadow for depression
                     Circle()
@@ -401,7 +434,7 @@ struct SliderThumb: View {
                 .shadow(color: color.opacity(0.6), radius: isDragging ? 10 : 6, x: 0, y: 0)
                 .scaleEffect(isDragging ? 1.1 : 1.0)
         }
-        .offset(x: thumbPosition - thumbSize / 2 - 10, y: 0)
+        .offset(x: thumbPosition - thumbSize / 2 - 11, y: 1)
     }
 }
 
