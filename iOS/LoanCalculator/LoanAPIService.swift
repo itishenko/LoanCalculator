@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - API Service
 class LoanAPIService {
-    private let baseURL = "https://jsonplaceholder.typicode.com/posts"
+    private let baseURL = "https://jsonplaceholder.typicode.com"
     
     enum APIError: LocalizedError {
         case invalidURL
@@ -29,7 +29,7 @@ class LoanAPIService {
     }
     
     func submitApplication(_ application: LoanApplication) async throws -> LoanApplicationResponse {
-        guard let url = URL(string: baseURL) else {
+        guard let url = URL(string: baseURL.appending("/posts")) else {
             throw APIError.invalidURL
         }
         

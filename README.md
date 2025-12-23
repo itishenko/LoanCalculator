@@ -87,7 +87,6 @@ cd Android
 - `LoanReducerTests` - тесты Redux reducer
 - `NumberFormatterTests` - тесты форматирования
 - `IntegrationTests` - интеграционные тесты
-- `PerformanceTests` - тесты производительности
 
 ### Android (50+ тестов)
 - `LoanStateTests` - тесты состояния и вычислений
@@ -95,8 +94,6 @@ cd Android
 - `NumberFormatterTests` - тесты форматирования
 - `IntegrationTests` - интеграционные тесты
 - `EdgeCasesAndValidationTests` - граничные случаи
-- `StoreTests` - тесты Redux store
-- `PerformanceTests` - тесты производительности
 
 ---
 

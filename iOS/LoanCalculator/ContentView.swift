@@ -20,7 +20,6 @@ struct ContentView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 30) {
-                    // Amount Slider Section
                     AmountSliderSection(
                         title: "How much?",
                         amount: $localAmount,
@@ -31,7 +30,6 @@ struct ContentView: View {
                         onEnd: { store.dispatch(.setAmount(localAmount)) }
                     )
                     
-                    // Period Slider Section
                     PeriodSliderSection(
                         title: "How long?",
                         selectedPeriod: $localPeriod,
@@ -41,7 +39,6 @@ struct ContentView: View {
                         onEnd: { store.dispatch(.setPeriod(localPeriod)) }
                     )
                     
-                    // Submit Button
                     SubmitButton(
                         isLoading: store.state.isLoading,
                         isEnabled: store.state.isValid && !store.state.isLoading
@@ -66,10 +63,10 @@ struct ContentView: View {
                 localAmount = store.state.amount
                 localPeriod = store.state.periodDays
             }
-            .onChange(of: store.state.amount) { newValue in
+            .onChange(of: store.state.amount) { oldValue, newValue in
                 localAmount = newValue
             }
-            .onChange(of: store.state.periodDays) { newValue in
+            .onChange(of: store.state.periodDays) { oldValue, newValue in
                 localPeriod = newValue
             }
         }
@@ -207,7 +204,7 @@ struct RoundedTrackShape: Shape {
         var path = Path()
         let radius = rect.height / 2
         let thumbRadius = thumbSize / 2
-  
+        
         guard thumbPosition > thumbRadius + 10 else {
             path.addArc(center: CGPoint(x: radius, y: rect.midY),
                         radius: radius,
@@ -244,7 +241,7 @@ struct RoundedTrackShape: Shape {
         path.addLine(to: CGPoint(x: thumbPosition, y: rect.height))
         
         path.addEllipse(in: CGRect(x: thumbPosition - thumbRadius, y: -15, width: thumbRadius*2, height: thumbRadius*2))
-                
+        
         path.addLine(to: CGPoint(x: radius, y: rect.height))
         
         path.closeSubpath()
@@ -335,55 +332,21 @@ struct SliderThumb: View {
                 .blur(radius: isDragging ? 4 : 2)
                 .opacity(isDragging ? 1 : 0.6)
             
-            // Main sphere with vertical gradient
-//            Circle()
-//                .fill(
-//                    LinearGradient(
-//                        colors: [
-//                            color.opacity(0.6),
-//                            color.opacity(0.8),
-//                            color,
-//                            color.opacity(0.95),
-//                            color.opacity(0.85)
-//                        ],
-//                        startPoint: .top,
-//                        endPoint: .bottom
-//                    )
-//                )
-//                .frame(width: thumbSize, height: thumbSize)
-//                .overlay(
-//                    // Top highlight (bright spot)
-//                    Circle()
-//                        .fill(
-//                            RadialGradient(
-//                                colors: [
-//                                    Color.white.opacity(0.6),
-//                                    Color.white.opacity(0.3),
-//                                    Color.clear
-//                                ],
-//                                center: UnitPoint(x: 0.5, y: 0.25),
-//                                startRadius: 0,
-//                                endRadius: thumbSize / 3
-//                            )
-//                        )
-//                )
-//                .overlay(
-                    // Inner ring/depression circle
-                    Circle()
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color.black.opacity(0.35),
-                                    Color.black.opacity(0.2),
-                                    Color.black.opacity(0.1)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 2
-                        )
-                        .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
-//                )
+            // Inner ring/depression circle
+            Circle()
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(0.35),
+                            Color.black.opacity(0.2),
+                            Color.black.opacity(0.1)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 2
+                )
+                .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
                 .overlay(
                     // Inner shadow for depression
                     Circle()
@@ -395,8 +358,8 @@ struct SliderThumb: View {
                                     Color.clear
                                 ],
                                 center: .center,
-                                startRadius: thumbSize * 0.25,
-                                endRadius: thumbSize * 0.4
+                                startRadius: thumbSize * 0.1,
+                                endRadius: thumbSize * 0.5
                             )
                         )
                         .frame(width: thumbSize * 0.7, height: thumbSize * 0.7)
@@ -574,7 +537,7 @@ struct PeriodSliderSection: View {
                 onDragEnded: onEnd
             )
             
-            Labels(minText: "7", maxText: "28")
+            Labels(minText: "\(options.first ?? -1)", maxText: "\(options.last ?? -1)")
         }
     }
 }

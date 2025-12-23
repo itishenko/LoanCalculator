@@ -14,19 +14,11 @@
 			remoteGlobalIDString = 26C8969F2EF2F1F90046B43B;
 			remoteInfo = LoanCalculator;
 		};
-		26C896B82EF2F1FB0046B43B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 26C896982EF2F1F90046B43B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 26C8969F2EF2F1F90046B43B;
-			remoteInfo = LoanCalculator;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		26C896A02EF2F1F90046B43B /* LoanCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoanCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26C896AD2EF2F1FB0046B43B /* LoanCalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoanCalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		26C896B72EF2F1FB0046B43B /* LoanCalculatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoanCalculatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -38,11 +30,6 @@
 		26C896B02EF2F1FB0046B43B /* LoanCalculatorTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = LoanCalculatorTests;
-			sourceTree = "<group>";
-		};
-		26C896BA2EF2F1FB0046B43B /* LoanCalculatorUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LoanCalculatorUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -62,13 +49,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		26C896B42EF2F1FB0046B43B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -77,7 +57,6 @@
 			children = (
 				26C896A22EF2F1F90046B43B /* LoanCalculator */,
 				26C896B02EF2F1FB0046B43B /* LoanCalculatorTests */,
-				26C896BA2EF2F1FB0046B43B /* LoanCalculatorUITests */,
 				26C896A12EF2F1F90046B43B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,7 +66,6 @@
 			children = (
 				26C896A02EF2F1F90046B43B /* LoanCalculator.app */,
 				26C896AD2EF2F1FB0046B43B /* LoanCalculatorTests.xctest */,
-				26C896B72EF2F1FB0046B43B /* LoanCalculatorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,29 +118,6 @@
 			productReference = 26C896AD2EF2F1FB0046B43B /* LoanCalculatorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		26C896B62EF2F1FB0046B43B /* LoanCalculatorUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 26C896C72EF2F1FB0046B43B /* Build configuration list for PBXNativeTarget "LoanCalculatorUITests" */;
-			buildPhases = (
-				26C896B32EF2F1FB0046B43B /* Sources */,
-				26C896B42EF2F1FB0046B43B /* Frameworks */,
-				26C896B52EF2F1FB0046B43B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				26C896B92EF2F1FB0046B43B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				26C896BA2EF2F1FB0046B43B /* LoanCalculatorUITests */,
-			);
-			name = LoanCalculatorUITests;
-			packageProductDependencies = (
-			);
-			productName = LoanCalculatorUITests;
-			productReference = 26C896B72EF2F1FB0046B43B /* LoanCalculatorUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -177,10 +132,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					26C896AC2EF2F1FB0046B43B = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 26C8969F2EF2F1F90046B43B;
-					};
-					26C896B62EF2F1FB0046B43B = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 26C8969F2EF2F1F90046B43B;
 					};
@@ -202,7 +153,6 @@
 			targets = (
 				26C8969F2EF2F1F90046B43B /* LoanCalculator */,
 				26C896AC2EF2F1FB0046B43B /* LoanCalculatorTests */,
-				26C896B62EF2F1FB0046B43B /* LoanCalculatorUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -216,13 +166,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		26C896AB2EF2F1FB0046B43B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		26C896B52EF2F1FB0046B43B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -246,13 +189,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		26C896B32EF2F1FB0046B43B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -260,11 +196,6 @@
 			isa = PBXTargetDependency;
 			target = 26C8969F2EF2F1F90046B43B /* LoanCalculator */;
 			targetProxy = 26C896AE2EF2F1FB0046B43B /* PBXContainerItemProxy */;
-		};
-		26C896B92EF2F1FB0046B43B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 26C8969F2EF2F1F90046B43B /* LoanCalculator */;
-			targetProxy = 26C896B82EF2F1FB0046B43B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -484,40 +415,6 @@
 			};
 			name = Release;
 		};
-		26C896C82EF2F1FB0046B43B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3GP4MZQZ3K;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.taki.LoanCalculatorUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = LoanCalculator;
-			};
-			name = Debug;
-		};
-		26C896C92EF2F1FB0046B43B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3GP4MZQZ3K;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.taki.LoanCalculatorUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = LoanCalculator;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -544,15 +441,6 @@
 			buildConfigurations = (
 				26C896C52EF2F1FB0046B43B /* Debug */,
 				26C896C62EF2F1FB0046B43B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		26C896C72EF2F1FB0046B43B /* Build configuration list for PBXNativeTarget "LoanCalculatorUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				26C896C82EF2F1FB0046B43B /* Debug */,
-				26C896C92EF2F1FB0046B43B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

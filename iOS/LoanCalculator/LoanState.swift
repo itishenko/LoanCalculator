@@ -11,11 +11,10 @@ import Foundation
 struct LoanState: Equatable {
     var amount: Double = 5000
     var periodDays: Int = 14
-    var interestRate: Double = 0.15 // 15%
+    var interestRate: Double = 0.15
     var isLoading: Bool = false
     var submissionResult: SubmissionResult? = nil
     
-    // Computed properties
     var totalRepayment: Double {
         amount * (1 + interestRate)
     }

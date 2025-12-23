@@ -20,7 +20,7 @@ class Store: ObservableObject {
     }
     
     func dispatch(_ action: LoanAction) {
-        // Handle async actions (middleware pattern)
+        // Handle async actions 
         if case .submitApplication = action {
             handleSubmitApplication()
             return

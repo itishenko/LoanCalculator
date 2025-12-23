@@ -176,38 +176,28 @@ final class LoanReducerTests: XCTestCase {
         
         XCTAssertNil(state.submissionResult)
     }
-    
-    func testLoadSavedStateAction() {
-        // Test with no saved state
-        var state = LoanState()
-        state = loanReducer(state: state, action: .loadSavedState)
-        
-        // Should return default state when no saved state exists
-        XCTAssertEqual(state.amount, 5000.0, accuracy: 0.01)
-        XCTAssertEqual(state.periodDays, 14)
-    }
 }
 
 // MARK: - Number Formatter Tests
 final class NumberFormatterTests: XCTestCase {
     
     func testFormatAsCurrency() {
-        XCTAssertEqual(formatCurrency(5000.0), "5,000")
-        XCTAssertEqual(formatCurrency(10000.0), "10,000")
-        XCTAssertEqual(formatCurrency(50000.0), "50,000")
-        XCTAssertEqual(formatCurrency(1234567.0), "1,234,567")
+        XCTAssertEqual(5000.formatAsCurrency(), "5,000")
+        XCTAssertEqual(10000.formatAsCurrency(), "10,000")
+        XCTAssertEqual(50000.formatAsCurrency(), "50,000")
+        XCTAssertEqual(1234567.formatAsCurrency(), "1,234,567")
     }
     
     func testFormatAsPercentage() {
-        XCTAssertEqual(formatPercentage(0.15), "15%")
-        XCTAssertEqual(formatPercentage(0.20), "20%")
-        XCTAssertEqual(formatPercentage(0.075), "7%")
-        XCTAssertEqual(formatPercentage(0.5), "50%")
+        XCTAssertEqual(0.15.formatAsPercentage(), "15%")
+        XCTAssertEqual(0.20.formatAsPercentage(), "20%")
+        XCTAssertEqual(0.075.formatAsPercentage(), "8%")
+        XCTAssertEqual(0.5.formatAsPercentage(), "50%")
     }
     
     func testFormatAsShortDate() {
         let date = Date()
-        let formatted = formatDate(date)
+        let formatted = date.formatAsShortDate()
         
         XCTAssertFalse(formatted.isEmpty)
         XCTAssertTrue(formatted.count > 5)

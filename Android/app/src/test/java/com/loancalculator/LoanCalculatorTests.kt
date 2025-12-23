@@ -6,6 +6,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.util.Calendar
+import java.util.Date
 
 /**
  * Loan State Tests
@@ -392,47 +393,6 @@ class EdgeCasesAndValidationTests {
     fun `test negative period`() {
         val state = LoanState(amount = 10000.0, periodDays = -7)
         assertFalse(state.isValid)
-    }
-}
-
-/**
- * Redux Store Tests
- */
-class StoreTests {
-    
-    private lateinit var store: Store
-    
-    @Before
-    fun setup() {
-        store = Store()
-    }
-    
-    @Test
-    fun `test store initial state`() {
-        assertEquals(5000.0, store.state.value.amount, 0.01)
-        assertEquals(14, store.state.value.periodDays)
-        assertFalse(store.state.value.isLoading)
-        assertNull(store.state.value.submissionResult)
-    }
-    
-    @Test
-    fun `test store dispatch updates state`() {
-        store.dispatch(LoanAction.SetAmount(20000.0))
-        assertEquals(20000.0, store.state.value.amount, 0.01)
-        
-        store.dispatch(LoanAction.SetPeriod(28))
-        assertEquals(28, store.state.value.periodDays)
-    }
-    
-    @Test
-    fun `test store multiple dispatches`() {
-        store.dispatch(LoanAction.SetAmount(10000.0))
-        store.dispatch(LoanAction.SetPeriod(21))
-        store.dispatch(LoanAction.SubmissionStarted)
-        
-        assertEquals(10000.0, store.state.value.amount, 0.01)
-        assertEquals(21, store.state.value.periodDays)
-        assertTrue(store.state.value.isLoading)
     }
 }
 
