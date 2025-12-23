@@ -167,10 +167,6 @@ struct AlertItem: Identifiable {
     }
 }
 
-#Preview {
-    ContentView()
-}
-
 // MARK: - Shared Visual Building Blocks
 struct DiagonalStripesShape: Shape {
     func path(in rect: CGRect) -> Path {
@@ -577,4 +573,8 @@ struct Labels: View {
                 .foregroundColor(.secondary)
         }
     }
+}
+
+#Preview {
+    ContentView()
 }
