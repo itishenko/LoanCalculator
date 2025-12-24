@@ -39,13 +39,15 @@ struct ContentView: View {
                         onEnd: { store.dispatch(.setPeriod(localPeriod)) }
                     )
                     
+                    CalculationSection(state: store.state)
+                    
                     SubmitButton(
                         isLoading: store.state.isLoading,
                         isEnabled: store.state.isValid && !store.state.isLoading
                     ) {
                         store.dispatch(.submitApplication)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 8)
                 }
                 .padding()
             }
@@ -535,6 +537,37 @@ struct PeriodSliderSection: View {
             
             Labels(minText: "\(options.first ?? -1)", maxText: "\(options.last ?? -1)")
         }
+    }
+}
+
+// MARK: - Calculation Section
+struct CalculationSection: View {
+    let state: LoanState
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ResultRow(
+                icon: "percent",
+                title: "Interest Rate",
+                value: state.interestRate.formatAsPercentage(),
+                color: Color.blue
+            )
+            
+            ResultRow(
+                icon: "dollarsign.circle.fill",
+                title: "Total Repayment",
+                value: "₦\(state.totalRepayment.formatAsCurrency())",
+                color: Color.green
+            )
+            
+            ResultRow(
+                icon: "calendar",
+                title: "Repayment Date",
+                value: state.repaymentDate.formatAsShortDate(),
+                color: Color.orange
+            )
+        }
+        .padding(.vertical, 4)
     }
 }
 

@@ -94,6 +94,8 @@ fun LoanCalculatorScreen(
                 }
             )
             
+            CalculationSection(state = state)
+            
             Spacer(modifier = Modifier.weight(1f))
             
             SubmitButton(
@@ -283,6 +285,87 @@ fun SubmitButton(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+@Composable
+fun CalculationSection(
+    state: com.loancalculator.redux.LoanState,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        CalculationRow(
+            icon = Icons.Default.Percent,
+            title = "Interest Rate",
+            value = NumberFormatter.formatAsPercentage(state.interestRate),
+            iconColor = MaterialTheme.colorScheme.primary
+        )
+        
+        CalculationRow(
+            icon = Icons.Default.AttachMoney,
+            title = "Total Repayment",
+            value = "₦${NumberFormatter.formatAsCurrency(state.totalRepayment)}",
+            iconColor = MaterialTheme.colorScheme.tertiary
+        )
+        
+        CalculationRow(
+            icon = Icons.Default.CalendarMonth,
+            title = "Repayment Date",
+            value = NumberFormatter.formatAsShortDate(state.repaymentDate),
+            iconColor = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@Composable
+fun CalculationRow(
+    icon: ImageVector,
+    title: String,
+    value: String,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = iconColor,
+                modifier = Modifier.size(28.dp)
+            )
+            
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
