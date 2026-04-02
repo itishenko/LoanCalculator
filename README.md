@@ -1,32 +1,32 @@
 # 💰 Loan Calculator
 
-Приложение для расчета параметров займа с современным UI и Redux архитектурой.
+An app for calculating loan parameters with a modern UI and Redux architecture.
 
-## 📱 Платформы
+## 📱 Platforms
 
 - **iOS** (Swift + SwiftUI)
 - **Android** (Kotlin + Jetpack Compose)
 
 ---
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
 ### iOS
 
-#### Запуск
+#### Run
 ```bash
 cd iOS
 open LoanCalculator.xcodeproj
 ```
 
-В Xcode:
-1. Выберите симулятор или устройство
-2. Нажмите `Cmd + R` для запуска
+In Xcode:
+1. Select a simulator or a physical device
+2. Press `Cmd + R` to run
 
-#### Тесты
+#### Tests
 ```bash
-# В Xcode: Cmd + U
-# Или через терминал:
+# In Xcode: Cmd + U
+# Or via terminal:
 xcodebuild test -scheme LoanCalculator \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 15'
@@ -36,74 +36,74 @@ xcodebuild test -scheme LoanCalculator \
 
 ### Android
 
-#### Запуск
+#### Run
 ```bash
 cd Android
 
-# Через Gradle
+# Via Gradle
 ./gradlew assembleDebug
 ./gradlew installDebug
 
-# Или откройте в Android Studio и нажмите Run
+# Or open in Android Studio and click Run
 ```
 
-#### Тесты
+#### Tests
 ```bash
 cd Android
 ./gradlew test
-./gradlew connectedAndroidTest  # Для UI тестов
+./gradlew connectedAndroidTest  # For UI tests
 ```
 
 ---
 
-## Функционал
+## Features
 
-### Основные возможности
-- Слайдеры для выбора суммы (5,000 - 50,000 USD) и срока (7, 14, 21, 28 дней)
-- Отправка заявки на mock API
-- Индикация загрузки, успеха и ошибок
-- Сохранение последнего выбора (UserDefaults/SharedPreferences)
+### Core functionality
+- Sliders for selecting amount (5,000 - 50,000 USD) and term (7, 14, 21, 28 days)
+- Submit requests to a mock API
+- Loading, success, and error state handling
+- Persist last selected values (UserDefaults/SharedPreferences)
 
 ### UI/UX
-- Современный дизайн с кастомными 3D-слайдерами
-- Поддержка темной/светлой темы
-- Адаптивная верстка
-- Плавные анимации и градиенты
-- Форматирование чисел с разделителями
+- Modern design with custom 3D sliders
+- Dark/light theme support
+- Adaptive layout
+- Smooth animations and gradients
+- Number formatting with separators
 
-### Кастомные слайдеры
-- 3D эффект с тенями и бликами
-- Градиентная заливка трека (от темного к светлому)
-- Выпуклость трека вокруг ползунка (Path с кривыми Безье)
-- Плавные анимации при взаимодействии
+### Custom sliders
+- 3D effect with shadows and highlights
+- Gradient track fill (from dark to light)
+- Convex track shape around the thumb (Path with Bezier curves)
+- Smooth interaction animations
 
-### Архитектура
+### Architecture
 - Redux/UDF (Store, State, Actions, Reducers)
-- Полное покрытие unit-тестами
-- Async/await (iOS) и Coroutines (Android)
-- Retrofit для сетевых запросов (Android)
-- Валидация входных данных
+- Full unit test coverage
+- Async/await (iOS) and Coroutines (Android)
+- Retrofit for network requests (Android)
+- Input validation
 
 ---
 
-## 🧪 Покрытие тестами
+## 🧪 Test Coverage
 
-### iOS (30+ тестов)
-- `LoanStateTests` - тесты состояния и вычислений
-- `LoanReducerTests` - тесты Redux reducer
-- `NumberFormatterTests` - тесты форматирования
-- `IntegrationTests` - интеграционные тесты
+### iOS (30+ tests)
+- `LoanStateTests` - state and calculation tests
+- `LoanReducerTests` - Redux reducer tests
+- `NumberFormatterTests` - formatting tests
+- `IntegrationTests` - integration tests
 
-### Android (50+ тестов)
-- `LoanStateTests` - тесты состояния и вычислений
-- `LoanReducerTests` - тесты Redux reducer
-- `NumberFormatterTests` - тесты форматирования
-- `IntegrationTests` - интеграционные тесты
-- `EdgeCasesAndValidationTests` - граничные случаи
+### Android (50+ tests)
+- `LoanStateTests` - state and calculation tests
+- `LoanReducerTests` - Redux reducer tests
+- `NumberFormatterTests` - formatting tests
+- `IntegrationTests` - integration tests
+- `EdgeCasesAndValidationTests` - edge cases and validation
 
 ---
 
-## 🛠️ Технологии
+## 🛠️ Technologies
 
 ### iOS
 - Swift 5.9+
